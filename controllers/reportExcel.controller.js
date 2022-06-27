@@ -23,6 +23,25 @@ const  {pool} = require('../database')
         return res.status(500).json('Ocurrio un Problemas con el servidor interno!.');
     }
 }
+
+
+const estudiantes_con_pacientes = async (req, res) => {
+    try {
+       
+         const response = await pool.query(  `select distinct  p.nombre,p.apellido, p.genero,p.correo,e.ciclo,e.codigo,e.grupo,pa.nro_pacientes
+         from personal_ayuda pa,
+         persona p,
+         estudiante e
+         where 
+         pa.idpersona = p.idpersona and e.idpersonal = pa.idpersonal
+         and pa.tipo='estudiante' and pa.sede='UPeU Juliaca' order by pa.nro_pacientes desc`);
+
+        return res.status(200).json(response.rows);
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json('Ocurrio un Problemas con el servidor interno!.');
+    }
+}
 const psicologos_con_pacientes_asignados = async(req,res)=>{
     try {
         const response = await pool.query(  `select distinct  p.nombre,p.apellido,pa.sede, p.genero,p.correo,psi.grado_academico,psi.n_colegiatura,psi.especialidad,pa.nro_pacientes
@@ -155,6 +174,7 @@ module.exports={
     psicologos_con_pacientes_asignados,
     // registro_personas_enProceso,
     registro_personasAtendidasEgresados,
+    estudiantes_con_pacientes,
     registro_personasAtendidasEstudiantes,
     registro_datos_personas_canceladas,
     registro_atenciones,

@@ -8,6 +8,8 @@ const reports = require('../controllers/reportExcel.controller')
 
 router.get('/estudiantesConPacientes',checkToken,reports.estudiantes_con_pacientes_asignados);
 router.get('/psicologosConPacientes',checkToken,reports.psicologos_con_pacientes_asignados);
+
+router.get('/juliaca',checkToken,reports.estudiantes_con_pacientes);
 // router.get('/personasSolicitantes',reports.registro_personas_enProceso);   
 router.get('/personasAtendidasEgresados',checkToken,reports.registro_personasAtendidasEgresados);   
 router.get('/personasAtendidasEstudiantes',checkToken,reports.registro_personasAtendidasEstudiantes);   
