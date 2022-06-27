@@ -10,5 +10,5 @@ router.put('/update/dataschool',checkToken,personal.updatedataschool);
 router.put('/update/foto',checkToken,personal.subirfoto);
 router.post('/horario/post',checkToken,personal.createhorario);
 router.delete('/horario/delete/:id',checkToken,personal.deletehorario);
-// router.get('/5to',personal.get_estudiantes_5toaño);
+
 module.exports = router;

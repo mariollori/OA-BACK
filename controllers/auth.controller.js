@@ -11,7 +11,7 @@ const secret = "ex4m3n-p4r614l-3";
     const {username,password} =req.body;
     try {
         const responesuser  = await pool.query('select u.idusuario,u.password,u.username,pa.idpersonal from usuario u, personal_ayuda pa where u.username=$1 and u.estado=1 and pa.idusuario=u.idusuario ',[username]);
-        console.log(responesuser)
+      
         if(responesuser.rows.length!=0){
             const passold= responesuser.rows[0].password;
             if(await bcryptjs.compare(password,passold)){
@@ -32,7 +32,7 @@ const secret = "ex4m3n-p4r614l-3";
             return res.status(500).json({ msg: 'Usuario o Contraseña invalidados'})
         }
     } catch (error) {
-        console.log(error)
+       
         return res.status(500).json(error)
     }
 }

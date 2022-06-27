@@ -16,7 +16,6 @@ module.exports = {
                         message: "token invalido"
                     });
                 } else {
-                    console.log(req.body)
                     next();
                 }
             });

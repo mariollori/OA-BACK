@@ -33,4 +33,8 @@ appe.use('/bandeja',bandeja)
 
 const psi= require('./routes/solicitudes.routes')
 appe.use('/psicologo', psi)
+
+const exc = require('./routes/reportExcel.routes')
+appe.use('/excel',exc)
+
 module.exports = appe;
