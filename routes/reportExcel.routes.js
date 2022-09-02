@@ -11,8 +11,11 @@ router.get('/psicologosConPacientes',checkToken,reports.psicologos_con_pacientes
 
 router.get('/juliaca',checkToken,reports.estudiantes_con_pacientes);
 // router.get('/personasSolicitantes',reports.registro_personas_enProceso);   
-router.get('/personasAtendidasEgresados',checkToken,reports.registro_personasAtendidasEgresados);   
-router.get('/personasAtendidasEstudiantes',checkToken,reports.registro_personasAtendidasEstudiantes);   
-router.get('/personasCanceladas',checkToken,reports.registro_datos_personas_canceladas);   
-router.get('/registroAtenciones',checkToken,reports.registro_atenciones);   
+
+router.get('/personasAtendidasEgresados/:semestre',checkToken,reports.registro_personasAtendidasEgresados);   
+router.get('/personasAtendidasEstudiantes/:semestre',checkToken,reports.registro_personasAtendidasEstudiantes);   
+
+
+router.get('/personasCanceladas/:semestre',checkToken,reports.registro_datos_personas_canceladas);   
+router.get('/registroAtenciones/:semestre',checkToken,reports.registro_atenciones);   
 module.exports=router;

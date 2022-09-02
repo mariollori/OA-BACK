@@ -7,15 +7,15 @@ const  {pool} = require('../database')
 
  const estudiantes_con_pacientes_asignados = async (req, res) => {
     try {
-       
-         const response = await pool.query(  `select distinct  p.nombre,p.apellido,pa.sede, p.genero,p.correo,e.ciclo,e.codigo,e.grupo,pa.nro_pacientes
+        
+         const response = await pool.query(  `
+         select distinct  p.nombre,p.apellido, p.genero,p.correo,pa.sede,e.ciclo,e.codigo,e.grupo,pa.nro_pacientes
          from personal_ayuda pa,
          persona p,
-         estudiante e,
-         asignaciones a
+         estudiante e
          where 
          pa.idpersona = p.idpersona and e.idpersonal = pa.idpersonal
-         and a.idpersonal = pa.idpersonal and a.estado IN ('En Proceso','Finalizado')`);
+         and pa.tipo='estudiante' order by pa.nro_pacientes desc`);
 
         return res.status(200).json(response.rows);
     } catch (e) {
@@ -97,6 +97,7 @@ const psicologos_con_pacientes_asignados = async(req,res)=>{
 // }
 const registro_personasAtendidasEgresados= async(req,res)=>{
     try {
+        const {semestre} = req.params;
         const response = await pool.query(  `select  a.categoria,
         (p1.nombre || ''||p1.apellido) AS nombre,p1.telefono,(pa.provincia || ', ' ||pa.distrito || ', '|| pa.departamento) as procedencia,pa.ocupacion,pa.religion,p1.genero,pa.estado_civil,pa.grado_educacion,pa.fecha_nacimiento,
         a.descripcion,psi.grado_academico,psi.especialidad,psi.n_colegiatura,a.fecha,(p2.nombre || ''||p2.apellido) AS nombre_personal,pe.sede,a.fecha_asig,p2.correo,p2.telefono as contacto,a.nro_atenciones
@@ -106,7 +107,7 @@ const registro_personasAtendidasEgresados= async(req,res)=>{
         INNER JOIN psicologo psi ON psi.idpersonal = pe.idpersonal
         INNER JOIN persona p1  ON p1.idpersona = pa.idpersona
         INNER JOIN persona p2 ON  p2.idpersona = pe.idpersona
-        where a.estado ='Finalizado' and pe.tipo='psicologo'`);
+        where a.idsemestre=$1 and a.estado ='Finalizado' and pe.tipo='psicologo'`,[semestre]);
        return res.status(200).json(response.rows);
     } catch (e) {
         console.log(e)
@@ -115,6 +116,7 @@ const registro_personasAtendidasEgresados= async(req,res)=>{
 }
 const registro_personasAtendidasEstudiantes= async(req,res)=>{
     try {
+        const {semestre} = req.params;
         const response = await pool.query(  `select  a.categoria,
         (p1.nombre || ''||p1.apellido) AS nombre,p1.telefono,(pa.provincia || ', ' ||pa.distrito || ', '|| pa.departamento) as procedencia,pa.ocupacion,pa.religion,p1.genero,pa.estado_civil,pa.grado_educacion,pa.fecha_nacimiento,
         a.descripcion,e.ciclo,e.codigo,e.grupo,a.fecha,(p2.nombre || ''||p2.apellido) AS nombre_personal,pe.sede,a.fecha_asig,p2.correo,p2.telefono as contacto,a.nro_atenciones
@@ -124,7 +126,7 @@ const registro_personasAtendidasEstudiantes= async(req,res)=>{
         INNER JOIN estudiante e ON e.idpersonal = pe.idpersonal
         INNER JOIN persona p1  ON p1.idpersona = pa.idpersona
         INNER JOIN persona p2 ON  p2.idpersona = pe.idpersona
-        where a.estado ='Finalizado' and pe.tipo='estudiante'`);
+        where a.idsemestre = $1 and  a.estado ='Finalizado' and pe.tipo='estudiante'`,[semestre]);
        return res.status(200).json(response.rows);
     } catch (e) {
         console.log(e)
@@ -133,6 +135,7 @@ const registro_personasAtendidasEstudiantes= async(req,res)=>{
 }
 const registro_datos_personas_canceladas= async(req,res)=>{
     try {
+        const {semestre} = req.params;
         const response = await pool.query(  `select  a.categoria,
         (p1.nombre || ''||p1.apellido) AS nombre,p1.telefono,(pa.provincia || ', ' ||pa.distrito || ', '|| pa.departamento) as procedencia,
         a.descripcion,a.motivo,pe.tipo,a.fecha,(p2.nombre || ''||p2.apellido) AS nombre_personal,pe.sede,a.fecha_asig,p2.correo,p2.telefono as contacto
@@ -141,7 +144,7 @@ const registro_datos_personas_canceladas= async(req,res)=>{
         INNER JOIN paciente pa ON pa.idpaciente = a.idpaciente
         INNER JOIN persona p1  ON p1.idpersona = pa.idpersona
         INNER JOIN persona p2 ON  p2.idpersona = pe.idpersona
-        where a.estado ='Cancelado'`);
+        where a.idsemestre = $1 and a.estado ='Cancelado'`,[semestre]);
        return res.status(200).json(response.rows);
     } catch (e) {
         console.log(e)
@@ -150,6 +153,7 @@ const registro_datos_personas_canceladas= async(req,res)=>{
 }
 const registro_atenciones= async(req,res)=>{
     try {
+        const {semestre} = req.params;
         const response = await pool.query(  `select  a.categoria,
         (p1.nombre || ''||p1.apellido) AS nombre,p1.dni,
         pe.tipo,a.fecha,(p2.nombre || ''||p2.apellido) AS nombre_personal,pe.sede,a.fecha_asig,p2.correo,p2.telefono as contacto,
@@ -160,8 +164,8 @@ const registro_atenciones= async(req,res)=>{
         INNER JOIN persona p1  ON p1.idpersona = pa.idpersona
         INNER JOIN persona p2 ON  p2.idpersona = pe.idpersona
 		INNER JOIN registro_atencion ra ON ra.idasignacion = a.idasignacion 
-        where a.estado ='Finalizado'
-		order by nombre,nro_sesion`);
+        where a.idsemestre = $1 and  a.estado ='Finalizado'
+		order by nombre,nro_sesion`,[semestre]);
        return res.status(200).json(response.rows);
     } catch (e) {
         console.log(e)

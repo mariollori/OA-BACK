@@ -150,8 +150,8 @@ const { pool } = require('../database')
         if(idpersonal.rowCount == 0){
             idpersonal= await pool.query(sql,[3,'Psicologo']);
         }
-        await pool.query('INSERT INTO asignaciones(idpersonal,idpaciente,fecha,estado,descripcion,respuestas,antecedentes,problema_actual,categoria,nro_atenciones,codex) values($1,$2,$3,$4,$5,$6,$7,$8,$9,0,$10)' 
-        ,[idpersonal.rows[0].idpersonal,idpaciente,f,'En Proceso',data.rows[0].descripcion,data.rows[0].respuestas, data.rows[0].antecedentes,data.rows[0].problema_actual,data.rows[0].categoria,codex]);
+        await pool.query('INSERT INTO asignaciones(idpersonal,idpaciente,fecha,estado,descripcion,respuestas,antecedentes,problema_actual,categoria,nro_atenciones,codex,idsemestre) values($1,$2,$3,$4,$5,$6,$7,$8,$9,0,$10,$11)' 
+        ,[idpersonal.rows[0].idpersonal,idpaciente,f,'En Proceso',data.rows[0].descripcion,data.rows[0].respuestas, data.rows[0].antecedentes,data.rows[0].problema_actual,data.rows[0].categoria,codex,process.env.IDSEM]);
 
       
         return res.status(200).json(  `Se derivo la atencion correctamente`  );
@@ -166,6 +166,7 @@ const { pool } = require('../database')
  const registrar_puntuacion = async (req, res) => {
     try {
         const { dni,puntaje,descripcion,codex} = req.body
+        console.log(req.body)
         var f = new Date();
         const idpaciente = await pool.query(`
         select pa.idpaciente,a.idpersonal from  persona pe
@@ -183,6 +184,7 @@ const { pool } = require('../database')
                 return res.status(200).json(  `Se registro su valoracion, gracias por participar.`  );
             }
         }else{
+            console.log(idpaciente)
             return res.status(500).json(  `Verifique si usted participo en nuestro servicio o termino su atencion.`  );
         }
        

@@ -8,7 +8,7 @@ const  {pool} = require('../database')
     try {
         var sql1 = ` select pa.idpersonal from  personal_ayuda pa, usuario u, usuario_rol ru , rol r where  pa.estado = $1 and pa.nro_pacientes <= 4 and u.idusuario =pa.idusuario  and ru.idusuario = u.idusuario and r.idrol = ru.idrol and r.nombre = $2 order by pa.nro_pacientes  limit 1;`;
         var sql2 = `select pa.idpersonal from  personal_ayuda pa, usuario u, usuario_rol ru , rol r where  pa.estado = $1  and u.idusuario =pa.idusuario  and ru.idusuario = u.idusuario and r.idrol = ru.idrol and r.nombre = $2 order by pa.nro_pacientes  limit 1;`;
-        var sql3 =`INSERT INTO asignaciones(idpersonal,idpaciente,fecha,estado,respuestas,descripcion,categoria) values($1,$2,$3,$4,$5,$6,$7)`;
+        var sql3 =`INSERT INTO asignaciones(idpersonal,idpaciente,fecha,estado,respuestas,descripcion,categoria,idsemestre) values($1,$2,$3,$4,$5,$6,$7,$8)`;
         var responseuser;
         var idpersonal;
         var estado_asignacion;
@@ -34,7 +34,7 @@ const  {pool} = require('../database')
                         idpersonal = await pool.query(sql1,[3,'Interno']);
                     }
                 }
-                await pool.query(sql3, [idpersonal.rows[0].idpersonal, idpaciente_exist.rows[0].idpaciente, f, 'En Espera',paciente.respuestas,paciente.descripcion,paciente.categoria]);
+                await pool.query(sql3, [idpersonal.rows[0].idpersonal, idpaciente_exist.rows[0].idpaciente, f, 'En Espera',paciente.respuestas,paciente.descripcion,paciente.categoria,process.env.IDSEM]);
                 await pool.query('INSERT INTO historial_ingresos(idpaciente,fecha,estado) values($1,$2,$3)',[idpaciente_exist.rows[0].idpaciente,f,'Reingreso']);
             }
             return res.status(200).json(` ${persona.nombre} , su consulta ha sido registrada.En breve se le brindará la atención que necesita.`);
@@ -53,7 +53,7 @@ const  {pool} = require('../database')
                         idpersonal = await pool.query(sql1,[3,'Interno']);
                     }
                 }
-                await pool.query(sql3, [idpersonal.rows[0].idpersonal, responseuser.rows[0].idpaciente, f, 'En Espera',paciente.respuestas,paciente.descripcion,paciente.categoria]);
+                await pool.query(sql3, [idpersonal.rows[0].idpersonal, responseuser.rows[0].idpaciente, f, 'En Espera',paciente.respuestas,paciente.descripcion,paciente.categoria,process.env.IDSEM]);
             } else {
                 return res.status(500).json('Error al registrar, intente de nuevo en unos segundos!');
             }

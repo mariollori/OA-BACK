@@ -37,4 +37,10 @@ appe.use('/psicologo', psi)
 const exc = require('./routes/reportExcel.routes')
 appe.use('/excel',exc)
 
+
+const semestre = require('./routes/semestre.routes')
+appe.use('/semestre',semestre)
+
 module.exports = appe;
+
+

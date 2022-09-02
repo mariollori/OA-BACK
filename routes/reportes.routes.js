@@ -9,16 +9,9 @@ router.get('/buscarpersonal/sede',checkToken,reports.buscarpersonal_sede);
 router.get('/buscarpersonal_4/sede',checkToken,reports.buscar_personal_menor_4);
 
 router.get('/info_personal',checkToken,reports.personal_by_id);
-router.get('/estadisticas/genero/:genero',checkToken,reports.obtenerestadisticas_genero);
-router.get('/estadistica/:id',checkToken,reports.obtenerestadisticas);
-
-
+router.get('/estadisticas/genero',checkToken,reports.obtenerestadisticas_genero);
+router.get('/estadistica/',checkToken,reports.obtenerestadisticas);
 router.get('/estadisticastotales/tipo',checkToken,reports.estadisticas_generales_tipo_sede);
-router.get('/estadisticastotales/fecha',checkToken,reports.estadisticas_generales_tipo_sede_fecha);
-
-
-
-
 
 router.get('/get_atenciones/:id',checkToken,reports.get_atenciones_by_id);
 router.get('/get_pacientes/:id',checkToken,reports.get_asignaciones_by_id);

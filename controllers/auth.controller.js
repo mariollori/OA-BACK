@@ -32,6 +32,7 @@ const secret = "ex4m3n-p4r614l-3";
             return res.status(500).json({ msg: 'Usuario o Contraseña invalidados'})
         }
     } catch (error) {
+        console.log(error)
        
         return res.status(500).json(error)
     }
@@ -56,7 +57,7 @@ const secret = "ex4m3n-p4r614l-3";
             const payload = { "toky": verify.rows[0].idusuario }
             const token = jwt.sign(payload,secret2,{expiresIn:'15m'})
             await pool.query('update usuario set resettoken = $1 where idusuario=$2',[token,verify.rows[0].idusuario])
-            const url = `https://oidoamigo.netlify.app/#/home/change-password/${token}`;
+            const url = `https://oidoamigo.upeu.edu.pe/#/home/change-password/${token}`;
             await enviarmensaje(url,email);
             message='Porfavor verifique su correo electronico para modificar su constraseña.'
             return res.status(200).json(message);

@@ -3,7 +3,7 @@ const  {pool} = require('../database')
 
  const obtenerestadisticas_genero = async (req, res) => {
     try {
-        const sexo = req.params.genero
+        const {genero,semestre} = req.query
 
 
         const response = await pool.query(`
@@ -11,10 +11,11 @@ const  {pool} = require('../database')
         from paciente p ,
              asignaciones asig,
              persona pe
-         where  asig.idpaciente = p.idpaciente and p.idpersona = pe.idpersona and pe.genero = $1
-           group by asig.estado`, [sexo]);
+         where asig.idsemestre=$1  and asig.idpaciente = p.idpaciente and p.idpersona = pe.idpersona and pe.genero = $2
+           group by asig.estado`, [semestre,genero]);
         return res.status(200).json(response.rows);
     } catch (e) {
+        console.log(e)
         return res.status(500).json(e);
     }
 }
@@ -127,25 +128,33 @@ const  {pool} = require('../database')
     try {
         const tipo = req.query.tipo.toString();
         const sede = req.query.sede.toString();
+        const idsemestre = req.query.id;
         var response;
         if(tipo=="todos" && sede=="todos"){
             response = await pool.query(`
             select  asig.estado ,count(*)
             from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal   group by asig.estado`);
+            where asig.idsemestre =$1 and pa.idpersonal = asig.idpersonal   group by asig.estado`,[idsemestre]);
         }else if(tipo=="todos" && sede!="todos"){
             response = await pool.query(`
             select  asig.estado ,count(*)
             from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal and  pa.sede =$1
-             group by asig.estado`,[sede]);
+            where asig.idsemestre=$1 and  pa.idpersonal = asig.idpersonal and  pa.sede =$2
+             group by asig.estado`,[idsemestre,sede]);
+        }else if(tipo!=="todos" && sede=="todos"){
+            response = await pool.query(`
+            select  asig.estado ,count(*)
+            from asignaciones asig,personal_ayuda pa
+            where asig.idsemestre=$1 and  pa.idpersonal = asig.idpersonal and  pa.tipo =$2
+             group by asig.estado`,[idsemestre,tipo]);
+
         }else{
             
             response = await pool.query(`
             select  asig.estado ,count(*)
             from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal and pa.tipo = $1 and pa.sede =$2
-             group by asig.estado`,[tipo,sede]);
+            where asig.idsemestre = $1 and  pa.idpersonal = asig.idpersonal and pa.tipo = $2 and pa.sede =$3
+             group by asig.estado`,[idsemestre,tipo,sede]);
         }
          return res.status(200).json(response.rows);
     } catch (e) {
@@ -153,49 +162,17 @@ const  {pool} = require('../database')
     }
 }
 
- const estadisticas_generales_tipo_sede_fecha = async (req, res) => {
-    try {
-        const tipo = req.query.tipo.toString();
-        const sede = req.query.sede.toString();
-        const fechai = req.query.fechai;
-        const fechaf = req.query.fechai;
-        var response ;
-        if(tipo=="todos" && sede=="todos"){
-            response = await pool.query(`
-            select  asig.estado ,count(*)
-            from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal and asig.fecha >= $1 and asig.fecha <= $2 
-             group by asig.estado` ,[fechai,fechaf]);
-
-        }else if(tipo=="todos" && sede!="todos"){
-            response = await pool.query(`
-            select  asig.estado ,count(*)
-            from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal and asig.fecha >= $1 and asig.fecha <= $2  and pa.sede =$3
-             group by asig.estado` ,[fechai,fechaf,sede]);
-        }else{
-             response = await pool.query(`
-            select  asig.estado ,count(*)
-            from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal and asig.fecha >= $1 and asig.fecha <= $2  and pa.tipo = $3 and pa.sede =$4
-             group by asig.estado` ,[fechai,fechaf,tipo,sede]);
-        }
-      
-        return res.status(200).json(response.rows);
-    } catch (e) {
-        return res.status(500).json(e);
-    }
-}
 
  const obtenerestadisticas = async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = req.query.id;
+        const semestre = req.query.semestre;
 
         const response = await pool.query(`
         select  asig.estado ,count(*)
         from asignaciones asig
-         where asig.idpersonal = $1 
-           group by asig.estado`, [id]);
+         where asig.idsemestre=$1 and asig.idpersonal = $2 
+           group by asig.estado`, [semestre,id]);
         return res.status(200).json(response.rows);
     } catch (e) {
         return res.status(500).json(e);
@@ -208,12 +185,13 @@ const  {pool} = require('../database')
     try {
         const id = req.params.id;
        const tipo = req.query.tipo;
+       const semestre = req.query.semestre
         const response = await pool.query(`
         select  
         asig.categoria,pe.nombre,pe.apellido,pe.telefono,asig.fecha,p.departamento,p.provincia,p.distrito,asig.descripcion,p.religion,p.ocupacion,p.grado_educacion,p.estado_civil,asig.problema_actual,asig.antecedentes,asig.idasignacion,pe.edad,pe.genero,p.como_conocio,p.fecha_nacimiento,p.nro_hijos,
         asig.motivo,asig.estado,asig.respuestas
         from paciente p , asignaciones asig, persona pe
-         where  asig.idpersonal = $1 and asig.estado = $2 and  asig.idpaciente = p.idpaciente and p.idpersona = pe.idpersona`, [id,tipo]);
+         where asig.idsemestre=$1 and  asig.idpersonal = $2 and asig.estado = $3 and  asig.idpaciente = p.idpaciente and p.idpersona = pe.idpersona`, [semestre,id,tipo]);
         return res.status(200).json(response.rows);
     } catch (e) {
         return res.status(500).json(e);
@@ -324,7 +302,6 @@ personal_by_id,
 obtenerestadisticas_genero,
 obtenerestadisticas,
 estadisticas_generales_tipo_sede,
-estadisticas_generales_tipo_sede_fecha,
 get_atenciones_by_id,
 get_asignaciones_by_id,
 get_comentarios_by_id,

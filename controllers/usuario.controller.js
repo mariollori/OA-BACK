@@ -136,59 +136,77 @@ const  {pool} = require('../database')
 
 
 
-
-
-
- const estadisticas_generales_tipo_sede_fecha = async (req, res) => {
+const getNameOfRol = async (req,res)=>{
     try {
-        const tipo = req.query.tipo.toString();
-        const sede = req.query.sede.toString();
-        const fechai = req.query.fechai;
-        const fechaf = req.query.fechaf;
-        var response ;
-        if(tipo=="todos"){
-            response = await pool.query(`
-            select  asig.estado ,count(*)
-            from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal and asig.fecha >= $1 and asig.fecha <= $2  and pa.sede =$3
-             group by asig.estado` ,[fechai,fechaf,sede]);
-        }else{
-             response = await pool.query(`
-            select  asig.estado ,count(*)
-            from asignaciones asig,personal_ayuda pa
-            where pa.idpersonal = asig.idpersonal and asig.fecha >= $1 and asig.fecha <= $2  and pa.tipo = $3 and pa.sede =$4
-             group by asig.estado` ,[fechai,fechaf,tipo,sede]);
-        }
-      
-        return res.status(200).json(response.rows);
-    } catch (e) {
-        return res.status(500).json(e);
-    }
-}
-
-
-
- const obtenerestadisticas_fecha = async (req, res) => {
-    try {
-        console.log(req.query.id)
-        const id = req.query.id;
-        const fechai = req.query.fechai;
-        const fechaf = req.query.fechaf;
-
-
+        const id = req.params.id;
         const response = await pool.query(`
-        select  asig.estado ,count(*)
-        from paciente p
-        ,asignaciones asig
-         where asig.idpersonal = $1 and
-		 asig.fecha >= $2 and asig.fecha <= $3 and
-		 asig.idpaciente = p.idpaciente
-           group by asig.estado`, [id, fechai, fechaf]);
+        select r.nombre from
+        usuario u,
+        personal_ayuda pa,
+        rol r,
+        usuario_rol ur 
+        where pa.idpersonal = $1 and 
+        u.idusuario = pa.idusuario and
+        ur.idusuario = u.idusuario and
+        ur.idrol = r.idrol
+        `,[id])
         return res.status(200).json(response.rows);
-    } catch (e) {
-        return res.status(500).json(e);
+    } catch (error) {
+        return res.status(500).json(error);
     }
 }
+
+
+//  const estadisticas_generales_tipo_sede_fecha = async (req, res) => {
+//     try {
+//         const tipo = req.query.tipo.toString();
+//         const sede = req.query.sede.toString();
+//         const fechai = req.query.fechai;
+//         const fechaf = req.query.fechaf;
+//         var response ;
+//         if(tipo=="todos"){
+//             response = await pool.query(`
+//             select  asig.estado ,count(*)
+//             from asignaciones asig,personal_ayuda pa
+//             where pa.idpersonal = asig.idpersonal and asig.fecha >= $1 and asig.fecha <= $2  and pa.sede =$3
+//              group by asig.estado` ,[fechai,fechaf,sede]);
+//         }else{
+//              response = await pool.query(`
+//             select  asig.estado ,count(*)
+//             from asignaciones asig,personal_ayuda pa
+//             where pa.idpersonal = asig.idpersonal and asig.fecha >= $1 and asig.fecha <= $2  and pa.tipo = $3 and pa.sede =$4
+//              group by asig.estado` ,[fechai,fechaf,tipo,sede]);
+//         }
+      
+//         return res.status(200).json(response.rows);
+//     } catch (e) {
+//         return res.status(500).json(e);
+//     }
+// }
+
+
+
+//  const obtenerestadisticas_fecha = async (req, res) => {
+//     try {
+//         console.log(req.query.id)
+//         const id = req.query.id;
+//         const fechai = req.query.fechai;
+//         const fechaf = req.query.fechaf;
+
+
+//         const response = await pool.query(`
+//         select  asig.estado ,count(*)
+//         from paciente p
+//         ,asignaciones asig
+//          where asig.idpersonal = $1 and
+// 		 asig.fecha >= $2 and asig.fecha <= $3 and
+// 		 asig.idpaciente = p.idpaciente
+//            group by asig.estado`, [id, fechai, fechaf]);
+//         return res.status(200).json(response.rows);
+//     } catch (e) {
+//         return res.status(500).json(e);
+//     }
+// }
 
 module.exports={
     get_nombre_usuario,
@@ -197,8 +215,9 @@ get_datos_personales,
 get_datos_academicos,
 getasignaciondata,
 getpersonadata,
+getNameOfRol,
 getuserstocompare,
 modificar_datos_personales,
-estadisticas_generales_tipo_sede_fecha,
-obtenerestadisticas_fecha
+// estadisticas_generales_tipo_sede_fecha,
+// obtenerestadisticas_fecha
 }
